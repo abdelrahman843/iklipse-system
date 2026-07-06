@@ -150,13 +150,27 @@ export async function getValidAccessToken(userId: string): Promise<string | null
   const expired = !data.token_expiry || new Date(data.token_expiry).getTime() < Date.now();
   if (!expired && data.access_token) return data.access_token;
 
+  if (!data.refresh_token) {
+    // No refresh token was ever stored (consent granted without access_type=offline
+    // or without prompt=consent). Nothing to refresh with → force a reconnect.
+    console.error(`[google] no refresh_token stored for user ${userId}; forcing reconnect`);
+    await disconnect(userId);
+    return null;
+  }
+
   try {
     const tok = await refreshAccessToken(data.refresh_token);
     await storeTokens(userId, tok);
     return tok.access_token;
-  } catch {
-    // refresh token revoked/expired → drop it so the UI shows "Connect" again
-    await disconnect(userId);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(`[google] token refresh failed for user ${userId}: ${msg}`);
+    // Only drop the connection when Google says the grant itself is dead
+    // (invalid_grant = revoked / expired refresh token, e.g. Testing-mode 7-day
+    // expiry). For transient failures (network, invalid_client from a missing
+    // secret, rate limits) keep the row so a config fix restores it without a
+    // full reconnect.
+    if (/invalid_grant/i.test(msg)) await disconnect(userId);
     return null;
   }
 }
