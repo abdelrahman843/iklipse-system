@@ -74,8 +74,6 @@ export function CalendarCarousel({ email }: { email: string }) {
   };
 
   const isToday = (d: Date) => dkey(d) === dkey(today);
-  const selDate = useMemo(() => { const [y, m, d] = selectedKey.split("-").map(Number); return new Date(y, m, d); }, [selectedKey]);
-  const selEvents = byDay[selectedKey] ?? [];
 
   return (
     <div>
@@ -142,38 +140,6 @@ export function CalendarCarousel({ email }: { email: string }) {
             );
           })}
         </div>
-      </div>
-
-      {/* full-width selected day section */}
-      <div className="mt-6">
-        <div className="mb-3 flex items-baseline gap-3">
-          <h3 className="font-display text-lg font-bold text-ink">{selDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</h3>
-          <span className="text-sm text-faint">{selEvents.length} {selEvents.length === 1 ? "event" : "events"}</span>
-        </div>
-        {selEvents.length === 0 ? (
-          <div className="grid place-items-center rounded-2xl cc-card py-12 text-center">
-            <div><CalendarClock className="mx-auto mb-2 size-6 text-faint" /><p className="text-sm text-muted">Nothing scheduled this day.</p></div>
-          </div>
-        ) : (
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {selEvents.map((e) => (
-              <button key={e.id} onClick={() => setSel(e)}
-                className="flex items-start gap-3 rounded-xl cc-card p-4 text-left transition-colors hover:bg-black/[0.04]">
-                <span className="tnum shrink-0 rounded-md cc-soft px-2.5 py-1.5 text-[0.72rem] font-medium text-accent">
-                  {e.start.dateTime ? fmtTime(e.start.dateTime) : "All day"}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-ink">{e.summary || "(no title)"}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.68rem] text-faint">
-                    {e.location && <span className="flex items-center gap-1 truncate"><MapPin className="size-3 shrink-0" /><span className="max-w-[160px] truncate">{e.location}</span></span>}
-                    {e.attendees && e.attendees.length > 0 && <span className="flex items-center gap-1"><Users className="size-3" /> {e.attendees.length}</span>}
-                    {e.hangoutLink && <span className="flex items-center gap-1 text-accent-soft"><Video className="size-3" /> Meet</span>}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {sel && <EventModal e={sel} onClose={() => setSel(null)} />}

@@ -9,8 +9,11 @@ export async function GET(request: NextRequest) {
   if (caller.role !== "super_admin") return NextResponse.json({ error: "Super admin only." }, { status: 403 });
 
   const admin = getSupabaseAdmin();
-  const { data: ga } = await admin.from("google_accounts").select("user_id, google_email");
-  const ids = (ga ?? []).map((g) => g.user_id);
+  const { data: gaAll } = await admin.from("google_accounts").select("user_id, google_email");
+  // Never list the organizer (caller) as a selectable person — they're always
+  // included internally in the free/busy calculation. Just hide from the UI.
+  const ga = (gaAll ?? []).filter((g) => g.user_id !== caller.id);
+  const ids = ga.map((g) => g.user_id);
   if (!ids.length) return NextResponse.json({ members: [] });
 
   const { data: profs } = await admin.from("profiles").select("id, full_name, email, role").in("id", ids);
