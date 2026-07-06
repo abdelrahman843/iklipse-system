@@ -190,11 +190,12 @@ export async function freeBusy(accessToken: string, timeMin: string, timeMax: st
 
 export async function createEvent(
   accessToken: string,
-  opts: { summary: string; description?: string; startISO: string; endISO: string; attendees: string[]; addMeet: boolean },
+  opts: { summary: string; description?: string; location?: string; startISO: string; endISO: string; attendees: string[]; addMeet: boolean },
 ): Promise<{ htmlLink?: string; hangoutLink?: string; id: string }> {
   const body: Record<string, unknown> = {
     summary: opts.summary,
     description: opts.description,
+    location: opts.location,
     start: { dateTime: opts.startISO },
     end: { dateTime: opts.endISO },
     attendees: opts.attendees.map((email) => ({ email })),

@@ -23,14 +23,14 @@ export function TeamScheduler() {
   const [dayEnd, setDayEnd] = useState("18:00");
   const [duration, setDuration] = useState(30);
   const [title, setTitle] = useState("");
-  const [addMeet, setAddMeet] = useState(true);
+  const [addZoom, setAddZoom] = useState(true);
 
   const [teamEvents, setTeamEvents] = useState<{ user_id: string; connected: boolean; events: GEvent[] }[] | null>(null);
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [pickedSlot, setPickedSlot] = useState<Slot | null>(null);
   const [busy, setBusy] = useState<null | "events" | "slots" | "schedule">(null);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ link?: string; meet?: string } | null>(null);
+  const [result, setResult] = useState<{ link?: string; zoom?: string } | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -75,10 +75,12 @@ export function TeamScheduler() {
     setError(null); setBusy("schedule");
     try {
       const res = await authFetch("/api/google/team/schedule", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userIds: [...selected], startISO: pickedSlot.start, endISO: pickedSlot.end, title: title || "Meeting", addMeet }) });
+        body: JSON.stringify({ userIds: [...selected], startISO: pickedSlot.start, endISO: pickedSlot.end, title: title || "Meeting", addZoom }) });
       const j = await res.json();
-      if (res.ok) { setResult({ link: j.link, meet: j.meet }); }
-      else setError(j.error === "not_connected" ? "Connect your own Google Calendar first (My Calendar tab)." : j.detail || j.error || "Could not schedule.");
+      if (res.ok) { setResult({ link: j.link, zoom: j.zoom }); }
+      else if (j.error === "not_connected") setError("Connect your own Google Calendar first (My Calendar tab).");
+      else if (j.error === "zoom_not_connected") setError("Connect your Zoom account first (My Calendar tab) to add a Zoom link.");
+      else setError(j.detail || j.error || "Could not schedule.");
     } finally { setBusy(null); }
   };
 
@@ -133,7 +135,7 @@ export function TeamScheduler() {
             <Field label="From"><input type="time" value={dayStart} onChange={(e) => setDayStart(e.target.value)} className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-2 text-sm text-ink outline-none" /></Field>
             <Field label="To"><input type="time" value={dayEnd} onChange={(e) => setDayEnd(e.target.value)} className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-2 text-sm text-ink outline-none" /></Field>
             <Field label="Duration"><select value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-2 text-sm text-ink outline-none">{[15, 30, 45, 60, 90].map((d) => <option key={d} value={d} className="bg-[#141417]">{d} min</option>)}</select></Field>
-            <Field label="Video"><button onClick={() => setAddMeet((v) => !v)} className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border text-sm ${addMeet ? "border-accent/40 bg-accent/10 text-accent-soft" : "border-white/10 bg-white/5 text-muted"}`}><Video className="size-4" /> Meet</button></Field>
+            <Field label="Video"><button onClick={() => setAddZoom((v) => !v)} className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border text-sm ${addZoom ? "border-accent/40 bg-accent/10 text-accent-soft" : "border-white/10 bg-white/5 text-muted"}`}><Video className="size-4" /> Zoom</button></Field>
           </div>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Meeting title" className="mt-3 h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-ink outline-none focus:border-white/25" />
           <button onClick={findTimes} disabled={busy === "slots" || selected.size === 0}
@@ -172,7 +174,7 @@ export function TeamScheduler() {
                   Meeting scheduled & invites sent.
                   <div className="mt-1.5 flex gap-3">
                     {result.link && <a href={result.link} target="_blank" rel="noopener" className="inline-flex items-center gap-1 underline">Open event <ExternalLink className="size-3" /></a>}
-                    {result.meet && <a href={result.meet} target="_blank" rel="noopener" className="inline-flex items-center gap-1 underline">Join Meet <Video className="size-3" /></a>}
+                    {result.zoom && <a href={result.zoom} target="_blank" rel="noopener" className="inline-flex items-center gap-1 underline">Join Zoom <Video className="size-3" /></a>}
                   </div>
                 </div>
               )}

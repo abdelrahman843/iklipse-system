@@ -33,6 +33,9 @@ type GEvent = {
 };
 
 type Status = { configured: boolean; allowed: boolean; connected: boolean; email: string | null };
+type ZStatus = { configured: boolean; allowed: boolean; connected: boolean; email: string | null };
+
+const ZOOM_BLUE = "#2D8CFF";
 
 const DAY = 86_400_000;
 
@@ -48,6 +51,7 @@ function fmtWhen(e: GEvent): string {
 export default function CalendarPage() {
   const { ready, currentUser } = useAuth();
   const [status, setStatus] = useState<Status | null>(null);
+  const [zoom, setZoom] = useState<ZStatus | null>(null);
   const [events, setEvents] = useState<GEvent[]>([]);
   const [upcoming, setUpcoming] = useState<GEvent[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
@@ -58,11 +62,16 @@ export default function CalendarPage() {
 
   // Surface the OAuth callback result from the query string, then clean the URL.
   useEffect(() => {
-    const g = new URLSearchParams(window.location.search).get("google");
+    const params = new URLSearchParams(window.location.search);
+    const g = params.get("google");
     if (g === "connected") setNotice("Google Calendar connected.");
     else if (g === "denied") setError("Google access was denied. Nothing was connected.");
     else if (g === "error") setError("Something went wrong connecting Google. Please try again.");
-    if (g) window.history.replaceState({}, "", "/calendar");
+    const z = params.get("zoom");
+    if (z === "connected") setNotice("Zoom connected.");
+    else if (z === "denied") setError("Zoom access was denied. Nothing was connected.");
+    else if (z === "error") setError("Something went wrong connecting Zoom. Please try again.");
+    if (g || z) window.history.replaceState({}, "", "/calendar");
   }, []);
 
   // Auto-dismiss the success/notice banner after 5 seconds.
@@ -82,9 +91,19 @@ export default function CalendarPage() {
     }
   }, []);
 
+  const loadZoom = useCallback(async () => {
+    try {
+      const res = await authFetch("/api/zoom/status");
+      if (res.ok) setZoom(await res.json());
+      else setZoom({ configured: false, allowed: false, connected: false, email: null });
+    } catch {
+      setZoom({ configured: false, allowed: false, connected: false, email: null });
+    }
+  }, []);
+
   useEffect(() => {
-    if (ready && currentUser) loadStatus();
-  }, [ready, currentUser, loadStatus]);
+    if (ready && currentUser) { loadStatus(); loadZoom(); }
+  }, [ready, currentUser, loadStatus, loadZoom]);
 
   // Sidebar: next 30 days of events.
   const loadUpcoming = useCallback(async () => {
@@ -144,6 +163,24 @@ export default function CalendarPage() {
     setEvents([]);
     setUpcoming([]);
     setNotice("Google Calendar disconnected.");
+  };
+
+  const connectZoom = async () => {
+    setError(null);
+    try {
+      const res = await authFetch("/api/zoom/connect");
+      const json = await res.json();
+      if (res.ok && json.url) window.location.href = json.url;
+      else setError(json.error ?? "Could not start the Zoom connection.");
+    } catch {
+      setError("Could not start the Zoom connection.");
+    }
+  };
+
+  const disconnectZoom = async () => {
+    await authFetch("/api/zoom/disconnect", { method: "POST" });
+    setZoom((z) => (z ? { ...z, connected: false, email: null } : z));
+    setNotice("Zoom disconnected.");
   };
 
   const fcEvents = useMemo(
@@ -234,6 +271,46 @@ export default function CalendarPage() {
 
       {tab === "mine" && (
         <>
+      {/* Zoom — video provider for calls. Each user links their own account. */}
+      {zoom?.allowed && (
+        <Reveal>
+          <GlassCard className="mb-5 flex items-center justify-between gap-4 p-5">
+            <div className="flex items-center gap-3">
+              <span className="grid size-11 place-items-center rounded-2xl" style={{ background: "rgba(45,140,255,0.12)" }}>
+                <Video className="size-5" style={{ color: ZOOM_BLUE }} />
+              </span>
+              <div>
+                <p className="font-display text-sm font-semibold text-ink">Zoom</p>
+                <p className="text-[0.72rem] text-faint">
+                  {!zoom.configured
+                    ? "Not set up on the server yet."
+                    : zoom.connected
+                      ? (zoom.email ?? "Your Zoom account is linked.")
+                      : "Connect Zoom so your scheduled meeting links use Zoom."}
+                </p>
+              </div>
+            </div>
+            {zoom.configured &&
+              (zoom.connected ? (
+                <button
+                  onClick={disconnectZoom}
+                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-muted transition-colors hover:text-ink"
+                >
+                  <Unplug className="size-4" /> Disconnect
+                </button>
+              ) : (
+                <button
+                  onClick={connectZoom}
+                  className="flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-medium text-white transition-transform hover:scale-[1.03]"
+                  style={{ background: ZOOM_BLUE }}
+                >
+                  <Plug className="size-4" /> Connect Zoom
+                </button>
+              ))}
+          </GlassCard>
+        </Reveal>
+      )}
+
       {/* Not configured on the server yet */}
       {!status.configured ? (
         <Reveal>
