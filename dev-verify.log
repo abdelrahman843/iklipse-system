@@ -1,0 +1,38 @@
+
+> iklipse-hub@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.8:3000
+- Environments: .env.local
+✓ Ready in 1051ms
+
+ GET /login 200 in 1977ms (next.js: 1248ms, application-code: 729ms)
+ POST /api/admin/users 404 in 1557ms (next.js: 1461ms, application-code: 96ms)
+ POST /api/admin/users 404 in 134ms (next.js: 42ms, application-code: 93ms)
+ GET /login 200 in 67ms (next.js: 6ms, application-code: 61ms)
+ GET / 200 in 872ms (next.js: 155ms, application-code: 717ms)
+ GET /launch 200 in 119ms (next.js: 67ms, application-code: 53ms)
+ GET /dashboard 404 in 173ms (next.js: 113ms, application-code: 59ms)
+ GET /dashboard 404 in 149ms (next.js: 33ms, application-code: 116ms)
+ GET / 200 in 106ms (next.js: 9ms, application-code: 97ms)
+ GET /launch 200 in 34ms (next.js: 5ms, application-code: 29ms)
+ GET /dashboard 404 in 53ms (next.js: 14ms, application-code: 39ms)
+ GET /dashboard 404 in 91ms (next.js: 14ms, application-code: 77ms)
+ GET /launch 200 in 34ms (next.js: 6ms, application-code: 29ms)
+ GET /portal 200 in 97ms (next.js: 70ms, application-code: 26ms)
+ GET /launch 200 in 43ms (next.js: 7ms, application-code: 36ms)
+ GET /dashboard 404 in 40ms (next.js: 12ms, application-code: 28ms)
+ GET /dashboard 404 in 75ms (next.js: 12ms, application-code: 63ms)
+ GET / 200 in 70ms (next.js: 5ms, application-code: 66ms)
+ GET /portal 200 in 33ms (next.js: 4ms, application-code: 28ms)
+ GET /launch 200 in 30ms (next.js: 4ms, application-code: 25ms)
+ GET /dashboard 404 in 59ms (next.js: 16ms, application-code: 43ms)
+ GET /dashboard 404 in 99ms (next.js: 18ms, application-code: 80ms)
+ GET / 200 in 74ms (next.js: 4ms, application-code: 70ms)
+○ Compiling /academy ...
+ GET /academy 404 in 3.6s (next.js: 3.5s, application-code: 127ms)
+ GET /academy 404 in 75ms (next.js: 24ms, application-code: 51ms)
+ GET /academy 404 in 127ms (next.js: 20ms, application-code: 107ms)
+[?25h
