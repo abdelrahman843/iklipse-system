@@ -353,6 +353,92 @@ html:not(.dark) .cc-divider { border-color: rgba(0, 0, 0, 0.08); }
 html:not(.dark) .cc-modal { background: #fbf7f0; }
 
 /* =========================================================================
+   SELECT-GLASS - default dropdown style (system-wide). "Glass menu":
+   translucent control + chevron; dark menu with an orange-tinted selected row.
+   Apply `.select-glass` to any <select>. Keep sizing/width utilities on the tag.
+   ========================================================================= */
+.select-glass {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  color: var(--color-ink);
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a92' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.select-glass:hover { border-color: rgba(255, 255, 255, 0.25); }
+.select-glass:focus { border-color: rgba(255, 255, 255, 0.35); }
+.select-glass option {
+  background: #141418;
+  color: #b6b6bd;
+}
+.select-glass option:checked {
+  background: rgba(249, 83, 56, 0.18);
+  color: #f95338;
+}
+html:not(.dark) .select-glass {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+html:not(.dark) .select-glass option { background: #fbf7f0; color: #4a463d; }
+html:not(.dark) .select-glass option:checked { background: rgba(249, 83, 56, 0.15); color: #b53a24; }
+
+/* =========================================================================
+   SERVICE CONNECT BUTTONS - animated (text slides left, brand icon fades in)
+   Colour comes from --svc set inline per service (Google / Zoom).
+   ========================================================================= */
+.svc-btn {
+  position: relative;
+  width: 12rem;
+  height: 2.7rem;
+  background: #fff;
+  border: 1px solid var(--svc, #2593d3);
+  border-radius: 9px;
+  font-size: 15px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.4s ease;
+}
+.svc-btn p {
+  position: absolute;
+  top: 50%;
+  left: 1.1em;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--svc, #2570d3);
+  transition: left 0.4s ease, color 0.4s ease;
+}
+.svc-btn .svc-ico {
+  position: absolute;
+  top: 50%;
+  right: 0.75em;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  color: #fff;
+  transition: opacity 0.4s ease;
+}
+.svc-btn:hover { background: var(--svc, #255cd3); }
+.svc-btn:hover p { left: 0.8em; color: #fff; }
+.svc-btn:hover .svc-ico { opacity: 1; }
+
+/* Connected state → solid brand fill, always shows "Disconnect" + icon. */
+.svc-btn.is-connected { background: var(--svc); }
+.svc-btn.is-connected p { color: #fff; left: 0.8em; }
+.svc-btn.is-connected .svc-ico { opacity: 1; }
+.svc-btn.is-connected:hover { filter: brightness(0.9); }
+
+/* =========================================================================
    FULLCALENDAR - themed to the "Cinematic Dark Glass" system
    ========================================================================= */
 .fc {

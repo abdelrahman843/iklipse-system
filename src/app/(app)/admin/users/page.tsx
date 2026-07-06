@@ -5,6 +5,7 @@ import { UserPlus, ShieldCheck, Trash2, Check, AlertCircle, Lock } from "lucide-
 import { PageHeader } from "@/components/shell/PageHeader";
 import { Reveal } from "@/components/ui/Reveal";
 import { GlassCard, Avatar, Badge } from "@/components/ui/primitives";
+import { GlassSelect } from "@/components/ui/GlassSelect";
 import { useAuth, roleLabels, type Role } from "@/lib/auth";
 
 const ORANGE = "#F95338";
@@ -143,17 +144,13 @@ export default function UsersAdminPage() {
                   className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:border-white/25"
                 />
               ))}
-              <select
+              <GlassSelect
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
-                className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-ink outline-none focus:border-white/25"
-              >
-                {assignableRoles.map((r) => (
-                  <option key={r} value={r} className="bg-[#141417]">
-                    {roleLabels[r]}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setForm({ ...form, role: v as Role })}
+                ariaLabel="Role"
+                buttonClassName="h-11"
+                options={assignableRoles.map((r) => ({ value: r, label: roleLabels[r] }))}
+              />
               <button
                 type="submit"
                 disabled={submitting}

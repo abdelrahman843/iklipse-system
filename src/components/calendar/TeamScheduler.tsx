@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Users, CalendarDays, Search, Video, Check, Loader2, ExternalLink, AlertCircle, Clock } from "lucide-react";
 import { GlassCard, Avatar } from "@/components/ui/primitives";
+import { GlassSelect } from "@/components/ui/GlassSelect";
 import { authFetch } from "@/lib/api";
 
 const ORANGE = "#F95338";
@@ -64,7 +65,8 @@ export function TeamScheduler() {
     setError(null); setResult(null); setPickedSlot(null); setBusy("slots");
     try {
       const { timeMin, timeMax } = windowISO();
-      const res = await authFetch("/api/google/team/freebusy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userIds: [...selected], timeMin, timeMax, durationMin: duration, stepMin: duration }) });
+      const effDur = duration === 0 ? 60 : duration; // "Open" → find a 1-hour slot
+      const res = await authFetch("/api/google/team/freebusy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userIds: [...selected], timeMin, timeMax, durationMin: effDur, stepMin: effDur }) });
       const j = await res.json();
       if (res.ok) setSlots(j.slots ?? []); else setError(j.error ?? "Failed.");
     } finally { setBusy(null); }
@@ -88,7 +90,7 @@ export function TeamScheduler() {
     <div>
       <div className="mb-6">
         <h2 className="font-display text-4xl font-bold leading-none tracking-tight text-ink">Team</h2>
-        <p className="mt-2 text-[0.7rem] uppercase tracking-[0.2em] text-accent">Pick a date · select people · find a common time</p>
+        <p className="mt-2 text-[0.7rem] uppercase tracking-[0.2em] text-muted">Pick a date · select people · find a common time</p>
       </div>
       <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
       {/* Left: date + people */}
@@ -110,7 +112,7 @@ export function TeamScheduler() {
                 <button key={m.user_id} onClick={() => toggle(m.user_id)}
                   className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors ${on ? "bg-accent/10 text-ink" : "text-muted hover:bg-white/5"}`}>
                   <Avatar name={m.name} color={colorFor(m.user_id)} size={26} />
-                  <span className="min-w-0 flex-1"><span className="block truncate">{m.name}</span><span className="block truncate text-[0.66rem] text-faint">{m.email}</span></span>
+                  <span className="min-w-0 flex-1"><span className="block truncate">{m.name}</span></span>
                   {on && <Check className="size-4 text-accent" />}
                 </button>
               );
@@ -134,7 +136,7 @@ export function TeamScheduler() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Field label="From"><input type="time" value={dayStart} onChange={(e) => setDayStart(e.target.value)} className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-2 text-sm text-ink outline-none" /></Field>
             <Field label="To"><input type="time" value={dayEnd} onChange={(e) => setDayEnd(e.target.value)} className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-2 text-sm text-ink outline-none" /></Field>
-            <Field label="Duration"><select value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-2 text-sm text-ink outline-none">{[15, 30, 45, 60, 90].map((d) => <option key={d} value={d} className="bg-[#141417]">{d} min</option>)}</select></Field>
+            <Field label="Duration"><GlassSelect value={duration} onChange={(v) => setDuration(Number(v))} ariaLabel="Duration" options={[{ value: 15, label: "15 min" }, { value: 30, label: "30 min" }, { value: 45, label: "45 min" }, { value: 60, label: "1 hour" }, { value: 90, label: "1.5 hours" }, { value: 0, label: "Open" }]} /></Field>
             <Field label="Video"><button onClick={() => setAddZoom((v) => !v)} className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border text-sm ${addZoom ? "border-accent/40 bg-accent/10 text-accent-soft" : "border-white/10 bg-white/5 text-muted"}`}><Video className="size-4" /> Zoom</button></Field>
           </div>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Meeting title" className="mt-3 h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-ink outline-none focus:border-white/25" />
@@ -146,7 +148,7 @@ export function TeamScheduler() {
           {slots && (
             <div className="mt-4">
               {slots.length === 0 ? (
-                <p className="text-sm text-faint">No common free {duration}-min slot in that window. Widen the range or shorten duration.</p>
+                <p className="text-sm text-faint">No common free {duration === 0 ? "1-hour" : `${duration}-min`} slot in that window. Widen the range or shorten duration.</p>
               ) : (
                 <>
                   <p className="mb-2 text-[0.66rem] uppercase tracking-wider text-faint">Everyone free · pick one</p>

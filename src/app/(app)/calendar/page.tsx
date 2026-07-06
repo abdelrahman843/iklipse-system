@@ -7,8 +7,8 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import type { DatesSetArg, EventClickArg } from "@fullcalendar/core";
 import {
-  CalendarDays, Plug, RefreshCw, ExternalLink, MapPin, Users, Video,
-  Lock, Loader2, AlertCircle, Unplug, Clock,
+  CalendarDays, Plug, Users, User,
+  Lock, Loader2, AlertCircle,
 } from "lucide-react";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { Reveal } from "@/components/ui/Reveal";
@@ -17,8 +17,9 @@ import { useAuth } from "@/lib/auth";
 import { authFetch } from "@/lib/api";
 import { TeamScheduler } from "@/components/calendar/TeamScheduler";
 import { CalendarCarousel } from "@/components/calendar/CalendarCarousel";
+import { ServiceButton, GoogleGlyph, ZoomGlyph } from "@/components/calendar/ServiceButton";
+import { MeScheduler } from "@/components/calendar/MeScheduler";
 
-const ORANGE = "#F95338";
 
 type GEvent = {
   id: string;
@@ -57,7 +58,7 @@ export default function CalendarPage() {
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [tab, setTab] = useState<"mine" | "team">("mine");
+  const [tab, setTab] = useState<"mine" | "team" | "me">("mine");
   const isSuperAdmin = currentUser?.role === "super_admin";
 
   // Surface the OAuth callback result from the query string, then clean the URL.
@@ -234,14 +235,27 @@ export default function CalendarPage() {
         title="Calendar"
         subtitle="Your Google Calendar, live inside the hub. Connect your account to see your schedule and what's coming up."
         action={
-          status.connected ? (
-            <button
-              onClick={disconnect}
-              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-muted transition-colors hover:text-ink"
-            >
-              <Unplug className="size-4" /> Disconnect
-            </button>
-          ) : null
+          <div className="flex flex-col items-end gap-2.5">
+            {status.configured && (
+              <ServiceButton
+                color="#4285F4"
+                label="Connect Calendar"
+                connected={status.connected}
+                onClick={status.connected ? disconnect : connect}
+                icon={GoogleGlyph}
+              />
+            )}
+            {/* Zoom only appears once Google Calendar is connected. */}
+            {status.connected && zoom?.configured && (
+              <ServiceButton
+                color={ZOOM_BLUE}
+                label="Connect Zoom"
+                connected={!!zoom?.connected}
+                onClick={zoom?.connected ? disconnectZoom : connectZoom}
+                icon={ZoomGlyph}
+              />
+            )}
+          </div>
         }
       />
 
@@ -256,61 +270,24 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {isSuperAdmin && (
-        <div className="mb-5 flex w-fit gap-1 rounded-xl border border-white/8 bg-white/[0.04] p-1">
-          {([["mine", "My Calendar", CalendarDays], ["team", "Team", Users]] as const).map(([k, label, Icon]) => (
-            <button key={k} onClick={() => setTab(k)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm transition-colors ${tab === k ? "bg-accent/15 text-accent" : "text-muted hover:text-ink"}`}>
-              <Icon className="size-4" /> {label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="mb-5 flex w-fit gap-1 rounded-xl border border-white/8 bg-white/[0.04] p-1">
+        {([
+          ["mine", "My Calendar", CalendarDays],
+          ...(isSuperAdmin ? [["team", "Team", Users] as const] : []),
+          ["me", "Me", User],
+        ] as const).map(([k, label, Icon]) => (
+          <button key={k} onClick={() => setTab(k)}
+            className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm transition-colors ${tab === k ? "bg-accent/15 text-accent" : "text-muted hover:text-ink"}`}>
+            <Icon className="size-4" /> {label}
+          </button>
+        ))}
+      </div>
 
       {tab === "team" && isSuperAdmin && <TeamScheduler />}
+      {tab === "me" && <MeScheduler googleConnected={!!status.connected} zoomConnected={!!zoom?.connected} />}
 
       {tab === "mine" && (
         <>
-      {/* Zoom — video provider for calls. Each user links their own account. */}
-      {zoom?.allowed && (
-        <Reveal>
-          <GlassCard className="mb-5 flex items-center justify-between gap-4 p-5">
-            <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl" style={{ background: "rgba(45,140,255,0.12)" }}>
-                <Video className="size-5" style={{ color: ZOOM_BLUE }} />
-              </span>
-              <div>
-                <p className="font-display text-sm font-semibold text-ink">Zoom</p>
-                <p className="text-[0.72rem] text-faint">
-                  {!zoom.configured
-                    ? "Not set up on the server yet."
-                    : zoom.connected
-                      ? (zoom.email ?? "Your Zoom account is linked.")
-                      : "Connect Zoom so your scheduled meeting links use Zoom."}
-                </p>
-              </div>
-            </div>
-            {zoom.configured &&
-              (zoom.connected ? (
-                <button
-                  onClick={disconnectZoom}
-                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-muted transition-colors hover:text-ink"
-                >
-                  <Unplug className="size-4" /> Disconnect
-                </button>
-              ) : (
-                <button
-                  onClick={connectZoom}
-                  className="flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-medium text-white transition-transform hover:scale-[1.03]"
-                  style={{ background: ZOOM_BLUE }}
-                >
-                  <Plug className="size-4" /> Connect Zoom
-                </button>
-              ))}
-          </GlassCard>
-        </Reveal>
-      )}
-
       {/* Not configured on the server yet */}
       {!status.configured ? (
         <Reveal>
@@ -326,7 +303,7 @@ export default function CalendarPage() {
           </GlassCard>
         </Reveal>
       ) : !status.connected ? (
-        /* Connect CTA */
+        /* Connect CTA — action lives in the top-right button */
         <Reveal>
           <GlassCard className="flex flex-col items-center p-10 text-center">
             <span className="mb-5 grid size-16 place-items-center rounded-3xl bg-accent/10">
@@ -334,16 +311,9 @@ export default function CalendarPage() {
             </span>
             <p className="font-display text-xl font-semibold text-ink">Connect your Google Calendar</p>
             <p className="mt-2 max-w-md text-sm text-muted">
-              Link your Google account to see your full schedule here, exactly as it appears in Google Calendar, plus
-              your upcoming events at a glance. We only request read-only access.
+              Use the <span className="font-medium text-ink">Connect Calendar</span> button in the top-right to link your
+              Google account and see your full schedule here. We only request read-only access.
             </p>
-            <button
-              onClick={connect}
-              className="mt-6 flex h-11 items-center justify-center gap-2 rounded-xl px-6 text-sm font-medium text-white transition-transform hover:scale-[1.03]"
-              style={{ background: ORANGE }}
-            >
-              <Plug className="size-4" /> Connect Google Calendar
-            </button>
           </GlassCard>
         </Reveal>
       ) : (
