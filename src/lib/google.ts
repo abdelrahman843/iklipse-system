@@ -116,18 +116,30 @@ function emailFromIdToken(idToken?: string): string | null {
 
 export async function storeTokens(userId: string, tok: TokenResponse) {
   const admin = getSupabaseAdmin();
-  const row: Record<string, unknown> = {
-    user_id: userId,
+  // Rotating fields refreshed on every token grant.
+  const fields: Record<string, unknown> = {
     access_token: tok.access_token,
     token_expiry: new Date(Date.now() + (tok.expires_in - 60) * 1000).toISOString(),
     scope: tok.scope ?? null,
     updated_at: new Date().toISOString(),
   };
-  if (tok.refresh_token) row.refresh_token = tok.refresh_token;
   const email = emailFromIdToken(tok.id_token);
-  if (email) row.google_email = email;
-  const { error } = await admin.from("google_accounts").upsert(row, { onConflict: "user_id" });
-  if (error) throw new Error(error.message);
+  if (email) fields.google_email = email;
+
+  if (tok.refresh_token) {
+    // Initial connect / re-consent → Google returns a refresh_token. Full upsert.
+    const { error } = await admin
+      .from("google_accounts")
+      .upsert({ user_id: userId, refresh_token: tok.refresh_token, ...fields }, { onConflict: "user_id" });
+    if (error) throw new Error(error.message);
+  } else {
+    // Refresh grant → Google returns NO refresh_token. Update only the rotating
+    // fields and keep the existing refresh_token. A full upsert here would send
+    // refresh_token = NULL and violate the NOT NULL constraint (INSERT row is
+    // validated before ON CONFLICT resolves), which broke every refresh.
+    const { error } = await admin.from("google_accounts").update(fields).eq("user_id", userId);
+    if (error) throw new Error(error.message);
+  }
 }
 
 export async function getConnection(userId: string): Promise<{ connected: boolean; email: string | null }> {
