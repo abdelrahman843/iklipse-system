@@ -4,121 +4,110 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowLeft, ShieldCheck, AlertCircle } from "lucide-react";
+import { ArrowRight, ArrowLeft, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { img } from "@/lib/landing";
+import { Emblem } from "@/components/ui/Emblem";
+import { FieldError, ERROR_BORDER } from "@/components/ui/FieldError";
+import { cn } from "@/lib/utils";
 
 const ORANGE = "#F95338";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
   const [submitting, setSubmitting] = useState(false);
-  const [forgot, setForgot] = useState(false);
-  const [forgotSent, setForgotSent] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const next: { username?: string; password?: string } = {};
+    if (!username.trim()) next.username = "Enter your username";
+    if (!password) next.password = "Enter your password";
+    setErrors(next);
+    if (next.username || next.password) return;
+
     setSubmitting(true);
-    const res = await login(email, password);
+    const res = await login(username, password);
     setSubmitting(false);
     if (res.ok) router.push("/dashboard");
-    else setError(res.error ?? "Could not sign in.");
+    else setErrors({ password: res.error ?? "Incorrect username or password" });
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center px-4 py-16">
+    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden px-4 py-16">
+      {/* subtle ambiance — one restrained warm hint, mostly neutral */}
+      <div className="brand-glow-soft pointer-events-none absolute inset-0 opacity-25" />
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.08] blur-[130px]"
+        style={{ width: 520, height: 520, background: ORANGE }}
+      />
+
       <motion.div
-        initial={{ opacity: 0, y: 18, scale: 0.97 }}
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="relative w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-7 backdrop-blur-xl"
+        className="relative z-10 w-full max-w-sm"
       >
-        <div className="brand-glow-soft pointer-events-none absolute inset-0 opacity-80" />
-        <form onSubmit={submit} className="relative z-[2]">
-          <div className="mb-6 flex items-center gap-2.5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.emblemWhite} alt="iklipse" className="h-5 w-5" />
-            <span className="text-sm font-semibold tracking-tight text-white">iklipse</span>
-            <span className="ml-auto rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[0.66rem] text-white/60">
+        <form onSubmit={submit} noValidate>
+          {/* centered brand header */}
+          <div className="mb-8 flex flex-col items-center text-center">
+            <div className="mb-5 flex items-center gap-2.5">
+              <Emblem className="h-6 w-6" />
+              <span className="text-base font-semibold tracking-tight text-ink">iklipse</span>
+            </div>
+            <span className="mb-4 rounded-full border cc-divider bg-white/5 px-3 py-1 text-[0.64rem] uppercase tracking-[0.18em] text-muted">
               Team Workspace
             </span>
+            <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">Sign in</h1>
+            <p className="mt-2 text-sm font-light text-muted">Access the iklipse central hub.</p>
           </div>
-          <h1 className="text-2xl font-medium tracking-[-0.03em] text-white">Sign in</h1>
-          <p className="mt-2 text-sm font-light text-white/55">Access the iklipse central hub.</p>
 
-          {error && (
-            <div className="mt-4 flex items-start gap-2 rounded-xl border border-sla-red/30 bg-sla-red/10 p-3 text-[0.78rem] text-sla-red">
-              <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
-              {error}
+          <div className="space-y-3">
+            <div className="relative">
+              <FieldError message={errors.username} />
+              <input
+                type="text"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => { setUsername(e.target.value); setErrors((p) => ({ ...p, username: undefined })); }}
+                placeholder="Username"
+                autoFocus
+                className={cn(
+                  "h-12 w-full rounded-xl border cc-divider bg-white/5 px-4 text-sm text-ink outline-none backdrop-blur-sm transition-colors placeholder:text-faint focus:border-ink/40",
+                  errors.username && ERROR_BORDER,
+                )}
+              />
             </div>
-          )}
-
-          <div className="mt-5 space-y-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(null); }}
-              placeholder="Email"
-              autoFocus
-              className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/25"
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(null); }}
-              placeholder="Password"
-              className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/25"
-            />
+            <div className="relative">
+              <FieldError message={errors.password} />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: undefined })); }}
+                placeholder="Password"
+                className={cn(
+                  "h-12 w-full rounded-xl border cc-divider bg-white/5 px-4 text-sm text-ink outline-none backdrop-blur-sm transition-colors placeholder:text-faint focus:border-ink/40",
+                  errors.password && ERROR_BORDER,
+                )}
+              />
+            </div>
             <button
               type="submit"
               disabled={submitting}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium text-white transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ background: ORANGE }}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-medium text-black shadow-[0_10px_26px_-18px_rgba(0,0,0,0.6)] transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "Signing in…" : "Sign in"} <ArrowRight className="size-4" />
             </button>
           </div>
 
-          <div className="mt-5 flex items-start gap-2 rounded-xl border border-white/8 bg-white/[0.03] p-3 text-[0.72rem] text-white/50">
-            <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-white/40" />
+          <div className="mt-5 flex items-start gap-2 rounded-xl cc-card p-3 text-[0.72rem] text-muted">
+            <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-faint" />
             Sign-up is invite-only. Accounts are created by an admin - there is no public registration.
           </div>
 
-          <div className="mt-3">
-            {!forgot ? (
-              <button type="button" onClick={() => setForgot(true)} className="text-xs text-white/50 transition-colors hover:text-white/80">
-                Forgot password?
-              </button>
-            ) : forgotSent ? (
-              <div className="rounded-xl border border-sla-green/30 bg-sla-green/10 p-3 text-[0.72rem] text-sla-green">
-                Your admins (Marshall and Omar) have been notified to reset your password. They will reach out at your iklipse email.
-              </div>
-            ) : (
-              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                <p className="mb-2 text-[0.72rem] text-white/55">
-                  Enter your username and we will notify your admins to reset it.
-                </p>
-                <input
-                  placeholder="Username or email"
-                  className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/25"
-                />
-                <button
-                  type="button"
-                  onClick={() => setForgotSent(true)}
-                  className="mt-2 h-9 w-full rounded-lg text-sm font-medium text-white transition-transform hover:scale-[1.01]"
-                  style={{ background: ORANGE }}
-                >
-                  Notify admins
-                </button>
-              </div>
-            )}
-          </div>
-
-          <Link href="/launch" className="mt-5 flex items-center justify-center gap-2 text-xs text-white/40 hover:text-white/70">
+          <Link href="/launch" className="mt-6 flex items-center justify-center gap-2 text-xs text-faint hover:text-ink">
             <ArrowLeft className="size-3.5" /> Back to launch
           </Link>
         </form>

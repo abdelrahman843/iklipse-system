@@ -32,7 +32,6 @@ export default function LandingPage() {
           {/* Content */}
           <div className="relative z-[2] flex flex-1 flex-col justify-between p-7 md:p-12">
             <div className="fade-up flex items-center gap-2" style={{ animationDelay: "0.1s" }}>
-              <span className="size-2 rounded-full" style={{ background: ORANGE, boxShadow: `0 0 12px 2px ${ORANGE}b3` }} />
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">
                 Cast your shadow
               </span>
@@ -68,7 +67,7 @@ export default function LandingPage() {
                   { metric: "Up to 8×", desc: "Faster production with AI" },
                   { metric: "14", desc: "Global markets served" },
                 ].map((s) => (
-                  <div key={s.desc} className="glass-light rounded-2xl p-5 transition-transform duration-300 hover:scale-105">
+                  <div key={s.desc} className="rounded-2xl border border-white/12 bg-white/[0.06] p-5 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:bg-white/[0.09] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12),0_18px_44px_-24px_rgba(0,0,0,0.75)]">
                     <p className="text-3xl font-semibold tracking-tight text-white">{s.metric}</p>
                     <p className="mt-1 text-sm text-white/60">{s.desc}</p>
                   </div>
@@ -132,7 +131,6 @@ export default function LandingPage() {
 
             {/* AI caption chip */}
             <div className="absolute bottom-6 left-6 flex items-center gap-2 rounded-full bg-black/55 px-4 py-2 backdrop-blur-md">
-              <span className="size-2 rounded-full" style={{ background: ORANGE, boxShadow: `0 0 10px ${ORANGE}` }} />
               <span className="text-sm font-medium text-white">AI-infused production</span>
             </div>
           </div>
@@ -238,8 +236,6 @@ export default function LandingPage() {
             <div>
               <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Platform</p>
               <ul className="space-y-2.5">
-                <li><Link href="/launch" className="text-sm text-white/60 transition-colors hover:text-white">Launch Hub</Link></li>
-                <li><Link href="/portal" className="text-sm text-white/60 transition-colors hover:text-white">Client Portal</Link></li>
                 <li><Link href="/login" className="text-sm text-white/60 transition-colors hover:text-white">Team Login</Link></li>
               </ul>
             </div>

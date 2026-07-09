@@ -318,11 +318,11 @@ html:not(.dark) {
   --color-faint: #8b8274;
 }
 html:not(.dark) .glass {
-  background: rgba(251, 247, 240, 0.8);
-  border-color: rgba(0, 0, 0, 0.09);
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(0, 0, 0, 0.12);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
-    0 18px 40px -24px rgba(60, 40, 20, 0.18);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+    0 20px 46px -22px rgba(60, 40, 20, 0.24);
 }
 html:not(.dark) .glass-inset {
   background: rgba(0, 0, 0, 0.04);
@@ -338,17 +338,17 @@ html:not(.dark) .hairline {
 
 /* ---- Theme-aware panel helpers (adapt in both modes) -------------------- */
 .cc-card { background: rgba(255, 255, 255, 0.025); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
-html:not(.dark) .cc-card { background: rgba(251, 247, 240, 0.82); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.09); }
+html:not(.dark) .cc-card { background: rgba(255, 255, 255, 0.96); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12), 0 8px 22px -16px rgba(60, 40, 20, 0.2); }
 .cc-today { background: rgba(255, 255, 255, 0.10); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 html:not(.dark) .cc-today { background: rgba(255, 255, 255, 0.6); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
 .cc-soft { background: rgba(255, 255, 255, 0.06); }
-html:not(.dark) .cc-soft { background: rgba(0, 0, 0, 0.05); }
+html:not(.dark) .cc-soft { background: rgba(0, 0, 0, 0.08); }
 .cc-arrow { background: rgba(0, 0, 0, 0.7); }
 html:not(.dark) .cc-arrow { background: rgba(255, 255, 255, 0.92); }
 .cc-input { background: rgba(255, 255, 255, 0.05); }
 html:not(.dark) .cc-input { background: rgba(0, 0, 0, 0.04); }
 .cc-divider { border-color: rgba(255, 255, 255, 0.08); }
-html:not(.dark) .cc-divider { border-color: rgba(0, 0, 0, 0.08); }
+html:not(.dark) .cc-divider { border-color: rgba(0, 0, 0, 0.12); }
 .cc-modal { background: #0e0e12; }
 html:not(.dark) .cc-modal { background: #fbf7f0; }
 
@@ -388,6 +388,25 @@ html:not(.dark) .select-glass {
 }
 html:not(.dark) .select-glass option { background: #fbf7f0; color: #4a463d; }
 html:not(.dark) .select-glass option:checked { background: rgba(249, 83, 56, 0.15); color: #b53a24; }
+
+/* GlassSelect (custom dropdown) popover surface — adapts to light/dark. */
+.gs-menu { background: #141418; border-color: rgba(255, 255, 255, 0.1); }
+html:not(.dark) .gs-menu { background: #ffffff; border-color: rgba(0, 0, 0, 0.14); }
+
+/* iklipse emblem — masked SVG colored by theme: orange (light) / white (dark). */
+.iklipse-emblem { background-color: #ffffff; }
+html:not(.dark) .iklipse-emblem { background-color: #f95338; }
+
+/* Field validation tooltip (Variation E) — small pop-in. */
+.field-error-tip { animation: fieldErrPop 0.18s ease; transform-origin: bottom left; }
+@keyframes fieldErrPop {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* App sidebar surface — adapts to light/dark (was hardcoded dark). */
+.sidebar-surface { background: rgba(10, 10, 12, 0.62); border-color: rgba(255, 255, 255, 0.08); }
+html:not(.dark) .sidebar-surface { background: rgba(255, 255, 255, 0.96); border-color: rgba(0, 0, 0, 0.12); }
 
 /* =========================================================================
    SERVICE CONNECT BUTTONS - animated (text slides left, brand icon fades in)

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { LayoutDashboard, Briefcase, ArrowRight, ArrowLeft } from "lucide-react";
-import { img } from "@/lib/landing";
+import { Emblem } from "@/components/ui/Emblem";
 import { PortalLoader } from "@/components/landing/PortalLoader";
 
 const ORANGE = "#F95338";
@@ -52,15 +52,14 @@ export default function LaunchPage() {
         className="mb-12 flex flex-col items-center text-center"
       >
         <Link href="/" className="mb-7 flex items-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img.emblemWhite} alt="iklipse" className="h-6 w-6" />
-          <span className="text-base font-semibold tracking-tight text-white">iklipse</span>
+          <Emblem className="h-6 w-6" />
+          <span className="text-base font-semibold tracking-tight text-ink">iklipse</span>
         </Link>
         <p className="eyebrow mb-3">Choose your space</p>
-        <h1 className="font-display text-4xl font-semibold tracking-[-0.04em] text-white md:text-5xl">
+        <h1 className="font-display text-4xl font-semibold tracking-[-0.04em] text-ink md:text-5xl">
           Where are you headed?
         </h1>
-        <p className="mt-3 max-w-md text-sm font-light text-white/55">
+        <p className="mt-3 max-w-md text-sm font-light text-muted">
           Two doors into iklipse. Pick the one that fits - you can switch any time.
         </p>
       </motion.div>
@@ -77,7 +76,7 @@ export default function LaunchPage() {
             <button
               type="button"
               onClick={() => onCard(c.key, c.href)}
-              className="group relative flex aspect-[5/6] w-full flex-col justify-between overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-8 text-left backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:border-white/25 sm:aspect-[4/5] md:aspect-square"
+              className="glass group relative flex aspect-[5/6] w-full flex-col justify-between overflow-hidden rounded-[2.5rem] p-8 text-left transition-all duration-500 hover:-translate-y-1 sm:aspect-[4/5] md:aspect-square"
             >
               {/* per-card glow */}
               <div
@@ -95,24 +94,24 @@ export default function LaunchPage() {
                 <span
                   className="grid size-14 place-items-center rounded-2xl transition-transform duration-500 group-hover:scale-110"
                   style={{
-                    background: c.accent ? `${ORANGE}24` : "rgba(255,255,255,0.06)",
-                    color: c.accent ? ORANGE : "#fff",
+                    background: c.accent ? `${ORANGE}24` : "rgba(127,127,127,0.12)",
+                    color: c.accent ? ORANGE : "var(--color-ink)",
                   }}
                 >
                   <c.icon className="size-6" />
                 </span>
-                <span className="grid size-10 place-items-center rounded-full border border-white/15 text-white/60 transition-all duration-500 group-hover:border-white/40 group-hover:text-white">
+                <span className="grid size-10 place-items-center rounded-full border cc-divider text-muted transition-all duration-500 group-hover:text-ink">
                   <ArrowRight className="size-4 transition-transform duration-500 group-hover:translate-x-0.5" />
                 </span>
               </div>
 
               <div className="relative z-[2]">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45">{c.eyebrow}</p>
-                <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] text-white">{c.title}</h2>
-                <p className="mt-3 max-w-xs text-sm font-light leading-relaxed text-white/55">{c.desc}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-faint">{c.eyebrow}</p>
+                <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] text-ink">{c.title}</h2>
+                <p className="mt-3 max-w-xs text-sm font-light leading-relaxed text-muted">{c.desc}</p>
                 <span
                   className="mt-6 inline-flex items-center gap-2 text-sm font-medium"
-                  style={{ color: c.accent ? ORANGE : "#fff" }}
+                  style={{ color: c.accent ? ORANGE : "var(--color-ink)" }}
                 >
                   {c.cta}
                   <ArrowRight className="size-4 transition-transform duration-500 group-hover:translate-x-1" />
@@ -131,7 +130,7 @@ export default function LaunchPage() {
       >
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-white/45 transition-colors hover:text-white/80"
+          className="inline-flex items-center gap-2 text-sm text-faint transition-colors hover:text-ink"
         >
           <ArrowLeft className="size-3.5" /> Back to iklipseworld
         </Link>

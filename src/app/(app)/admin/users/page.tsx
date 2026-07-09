@@ -40,7 +40,7 @@ export default function UsersAdminPage() {
     const res = await addUser(form);
     setSubmitting(false);
     if (res.ok) {
-      setMsg({ ok: true, text: `${form.name} added. They can sign in with their email and temporary password.` });
+      setMsg({ ok: true, text: `${form.name || form.username} added. They sign in with their username and temporary password.` });
       setForm({ name: "", username: "", email: "", role: "member", password: "" });
     } else {
       setMsg({ ok: false, text: res.error ?? "Could not add user." });
@@ -76,9 +76,9 @@ export default function UsersAdminPage() {
                 <Avatar name={u.name} color="#3f3f46" size={34} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-ink">
-                    {u.name} <span className="text-faint">@{u.username}</span>
+                    {u.name || u.username} <span className="text-faint">@{u.username}</span>
                   </p>
-                  <p className="truncate text-[0.7rem] text-faint">{u.email || "no email"}</p>
+                  <p className="truncate text-[0.7rem] text-faint">Joined {u.createdAt || "—"}</p>
                 </div>
                 <Badge
                   className={
@@ -131,8 +131,7 @@ export default function UsersAdminPage() {
             <form onSubmit={submit} className="space-y-3">
               {[
                 { k: "name", ph: "Full name", type: "text" },
-                { k: "username", ph: "Username", type: "text" },
-                { k: "email", ph: "Email (used to sign in)", type: "email" },
+                { k: "username", ph: "Username (used to sign in)", type: "text" },
                 { k: "password", ph: "Temporary password", type: "text" },
               ].map((f) => (
                 <input
@@ -141,7 +140,7 @@ export default function UsersAdminPage() {
                   placeholder={f.ph}
                   value={form[f.k as keyof typeof form] as string}
                   onChange={(e) => { setForm({ ...form, [f.k]: e.target.value }); setMsg(null); }}
-                  className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:border-white/25"
+                  className="h-11 w-full rounded-xl border cc-divider bg-white/5 px-4 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:border-ink/40"
                 />
               ))}
               <GlassSelect

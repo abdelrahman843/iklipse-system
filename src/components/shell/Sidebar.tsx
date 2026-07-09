@@ -25,7 +25,6 @@ import { navItems, currentUser } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/primitives";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { img } from "@/lib/landing";
 import { useAuth, roleLabels } from "@/lib/auth";
 
 const icons: Record<string, LucideIcon> = {
@@ -57,26 +56,10 @@ export function Sidebar({
     <motion.aside
       animate={{ width: collapsed ? 76 : 264 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="relative z-20 hidden h-dvh shrink-0 flex-col border-r border-white/8 bg-[rgba(10,10,12,0.62)] backdrop-blur-xl md:flex"
+      className="sidebar-surface relative z-20 hidden h-dvh shrink-0 flex-col border-r backdrop-blur-xl md:flex"
     >
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-3 px-5">
-        <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-accent/60 shadow-[0_8px_24px_-8px_rgba(249,83,56,0.7)]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img.emblemWhite} alt="iklipse" className="size-5" />
-        </div>
-        {!collapsed && (
-          <div className="overflow-hidden">
-            <p className="font-display text-[0.95rem] font-bold leading-none tracking-tight text-ink">
-              IKLIPSE
-            </p>
-            <p className="text-[0.62rem] uppercase tracking-[0.2em] text-faint">Central Hub</p>
-          </div>
-        )}
-      </div>
-
       {/* Nav */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-3 pt-5">
         {navItems.map((item) => {
           // Members see only the Calendar tab
           if (authUser?.role === "member" && item.href !== "/calendar") return null;
@@ -124,7 +107,7 @@ export function Sidebar({
       </nav>
 
       {/* User mini */}
-      <div className="border-t border-white/8 p-3">
+      <div className="cc-divider border-t p-3">
         <div
           className={cn(
             "flex items-center gap-2 rounded-xl",

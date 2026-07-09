@@ -56,12 +56,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const email = body.email?.trim().toLowerCase();
+  const username = body.username?.trim().toLowerCase();
   const password = body.password?.trim();
   const role = body.role?.trim() || "member";
-  if (!email || !password) {
-    return NextResponse.json({ error: "Email and a temporary password are required." }, { status: 400 });
+  if (!username || !password) {
+    return NextResponse.json({ error: "Username and a temporary password are required." }, { status: 400 });
   }
+  if (!/^[a-z0-9._-]{3,}$/.test(username)) {
+    return NextResponse.json(
+      { error: "Username must be 3+ characters: letters, numbers, dot, dash or underscore." },
+      { status: 400 },
+    );
+  }
+
+  // Supabase Auth is email-based; usernames map to a hidden internal email.
+  const email = body.email?.trim().toLowerCase() || `${username}@iklipse.local`;
 
   const admin = getSupabaseAdmin();
   const { data, error } = await admin.auth.admin.createUser({
@@ -70,7 +79,7 @@ export async function POST(request: NextRequest) {
     email_confirm: true, // admin-created accounts are pre-confirmed (no verify email)
     user_metadata: {
       full_name: body.name?.trim() ?? "",
-      username: body.username?.trim() ?? "",
+      username,
       role,
     },
   });

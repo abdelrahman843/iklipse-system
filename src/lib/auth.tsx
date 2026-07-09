@@ -16,6 +16,15 @@ import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export type Role = "super_admin" | "admin" | "manager" | "member" | "client";
 
+/* Supabase Auth is email-based, but users sign in with a username. Each username
+   maps to a hidden internal email (username@iklipse.local). An input containing
+   "@" is treated as a raw email (back-compat for any email-based accounts). */
+export const LOGIN_DOMAIN = "iklipse.local";
+export const usernameToEmail = (id: string) => {
+  const v = id.trim().toLowerCase();
+  return v.includes("@") ? v : `${v}@${LOGIN_DOMAIN}`;
+};
+
 export type AuthUser = {
   id: string;
   name: string;
@@ -71,7 +80,7 @@ type AuthContextValue = {
   ready: boolean;
   currentUser: AuthUser | null;
   users: AuthUser[];
-  login: (email: string, password: string) => Promise<Result>;
+  login: (username: string, password: string) => Promise<Result>;
   logout: () => Promise<void>;
   addUser: (d: { name: string; username: string; email: string; role: Role; password: string }) => Promise<Result>;
   removeUser: (id: string) => Promise<Result>;
@@ -172,15 +181,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   const login = useCallback(
-    async (email: string, password: string): Promise<Result> => {
+    async (username: string, password: string): Promise<Result> => {
       if (!isSupabaseConfigured) return { ok: false, error: "Supabase is not configured yet. Add your keys to .env.local." };
       try {
         const supabase = getSupabase();
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim().toLowerCase(),
+          email: usernameToEmail(username),
           password,
         });
-        if (error) return { ok: false, error: error.message };
+        if (error) return { ok: false, error: "Incorrect username or password." };
         const u = data.user ? await loadProfile(data.user.id) : null;
         if (u && !u.active) {
           await supabase.auth.signOut();
@@ -207,8 +216,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const addUser = useCallback(
     async (d: { name: string; username: string; email: string; role: Role; password: string }): Promise<Result> => {
       if (!isAdminRole(currentUser?.role)) return { ok: false, error: "Only admins can add users." };
-      if (!d.name.trim() || !d.email.trim() || !d.password.trim()) {
-        return { ok: false, error: "Name, email and a temporary password are required." };
+      if (!d.username.trim() || !d.password.trim()) {
+        return { ok: false, error: "Username and a temporary password are required." };
       }
       try {
         const token = await getAccessToken();

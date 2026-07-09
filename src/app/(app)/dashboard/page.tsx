@@ -47,7 +47,7 @@ export default function DashboardPage() {
       <CosmicBackdrop />
       {/* ===== Hero band ===== */}
       <Reveal>
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] p-7 md:p-9">
+        <div className="cc-card relative overflow-hidden rounded-[2rem] p-7 md:p-9">
           <div className="brand-glow-soft pointer-events-none absolute inset-0 opacity-80" />
           <div className="relative z-[2] flex flex-wrap items-end justify-between gap-6">
             <div>
@@ -82,7 +82,7 @@ export default function DashboardPage() {
             {chips.map((c) => (
               <div
                 key={c.label}
-                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 backdrop-blur-sm"
+                className="cc-card flex items-center gap-3 rounded-2xl px-4 py-3 backdrop-blur-sm"
               >
                 <c.icon className="size-4 shrink-0" style={{ color: c.tone }} />
                 <div>
@@ -116,9 +116,9 @@ export default function DashboardPage() {
                 <StaggerItem key={t.id}>
                   <Link
                     href="/tasks"
-                    className="flex items-center gap-3.5 rounded-2xl border border-white/6 bg-white/[0.02] p-3.5 transition-all duration-300 hover:border-white/15 hover:bg-white/[0.05]"
+                    className="cc-card flex items-center gap-3.5 rounded-2xl p-3.5 transition-all duration-300"
                   >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/5 tnum text-[0.66rem] text-faint">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl cc-soft tnum text-[0.66rem] text-faint">
                       {t.id.replace("T-", "")}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -159,7 +159,7 @@ export default function DashboardPage() {
                       <span className="text-muted">{c.label}</span>
                       <span className="tnum font-medium" style={{ color }}>{v}</span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-white/6">
+                    <div className="h-1.5 overflow-hidden rounded-full cc-soft">
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{ width: `${v}%`, background: color, boxShadow: `0 0 8px ${color}88` }}
@@ -182,7 +182,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="relative space-y-1 pl-4">
-              <span className="absolute left-[3px] top-2 h-[calc(100%-1.5rem)] w-px bg-white/8" />
+              <span className="absolute left-[3px] top-2 h-[calc(100%-1.5rem)] w-px cc-soft" />
               {calendar.map((e) => (
                 <div key={e.id} className="relative flex items-center gap-3 py-2.5">
                   <span
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                 <Link
                   href="/academy"
                   key={l.id}
-                  className="flex items-center gap-3 rounded-2xl border border-white/6 bg-white/[0.02] p-3 transition-all duration-300 hover:border-white/15 hover:bg-white/[0.05]"
+                  className="cc-card flex items-center gap-3 rounded-2xl p-3 transition-all duration-300"
                 >
                   <PlayCircle className="size-4 shrink-0 text-accent" />
                   <div className="min-w-0 flex-1">
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                     <p className="text-[0.68rem] text-faint">{l.duration} · {l.track}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-1 w-10 overflow-hidden rounded-full bg-white/8">
+                    <div className="h-1 w-10 overflow-hidden rounded-full cc-soft">
                       <div className="h-full rounded-full bg-accent" style={{ width: `${l.progress}%` }} />
                     </div>
                     <span className="tnum text-[0.7rem] text-muted">{l.progress}%</span>

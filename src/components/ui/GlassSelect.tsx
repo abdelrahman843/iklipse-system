@@ -58,7 +58,7 @@ export function GlassSelect({
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 overflow-hidden rounded-[9px] border border-white/10 bg-[#141418] py-1 shadow-[0_18px_40px_-14px_rgba(0,0,0,0.7)]"
+          className="gs-menu absolute left-0 right-0 top-[calc(100%+6px)] z-30 overflow-hidden rounded-[9px] border py-1 shadow-[0_18px_40px_-14px_rgba(0,0,0,0.7)]"
         >
           {options.map((o) => {
             const selected = String(o.value) === String(value);

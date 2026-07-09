@@ -19,7 +19,6 @@ export default function ProfilePage() {
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -32,7 +31,6 @@ export default function ProfilePage() {
     if (!currentUser) return;
     setName(currentUser.name);
     setUsername(currentUser.username);
-    setEmail(currentUser.email);
     setBio(currentUser.bio ?? "");
     setAvatar(currentUser.avatar);
   }, [currentUser]);
@@ -63,7 +61,7 @@ export default function ProfilePage() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await updateProfile({ name, username, email, bio, avatar: avatar ?? null });
+    const res = await updateProfile({ name, bio, avatar: avatar ?? null });
     setMsg(res.ok ? { ok: true, text: "Profile saved." } : { ok: false, text: res.error ?? "Could not save." });
   };
 
@@ -129,14 +127,10 @@ export default function ProfilePage() {
               </label>
               <label className="block">
                 <span className="mb-1.5 block text-[0.72rem] text-faint">Username</span>
-                <input value={username} onChange={(e) => { setUsername(e.target.value); setMsg(null); }} className={field} placeholder="Username" />
+                <input value={username} readOnly title="Your sign-in username is set by an admin" className={`${field} cursor-not-allowed opacity-60`} placeholder="Username" />
               </label>
             </div>
-
-            <label className="mt-4 block">
-              <span className="mb-1.5 block text-[0.72rem] text-faint">Email</span>
-              <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setMsg(null); }} className={field} placeholder="you@iklipse.com" />
-            </label>
+            <p className="mt-2 text-[0.68rem] text-faint">Your username is your sign-in credential — only an admin can change it.</p>
 
             <label className="mt-4 block">
               <span className="mb-1.5 block text-[0.72rem] text-faint">Bio</span>
